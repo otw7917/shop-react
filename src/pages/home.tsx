@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Banner from "../components/banner";
 import Product from "../components/product";
 import { Product as ProductType } from "../types";
+import { useNavigate } from "react-router-dom";
 
 const IMAGE = {
   name: "banner",
@@ -15,6 +16,8 @@ function Home() {
     [productId: string]: ProductType;
   } | null>(null);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetch("data/products.json", {
       method: "GET",
@@ -26,6 +29,12 @@ function Home() {
 
   if (!products) return <>Loading</>;
 
+  const goProductDetailPage = (e: React.MouseEvent<HTMLUListElement>) => {
+    const productId = (e.target as HTMLElement).closest("li")?.dataset.id;
+    if (productId) {
+      navigate("product/" + productId);
+    }
+  };
   return (
     <>
       <section className='relative w-full h-96 my-2'>
@@ -33,9 +42,13 @@ function Home() {
       </section>
       <section className='flex flex-col gap-4 mx-2'>
         <h1>Prodcut page</h1>
-        <ul className='grid grid-cols-4 gap-2'>
+        <ul className='grid grid-cols-4 gap-6' onClick={goProductDetailPage}>
           {Object.entries(products).map(([id, product]) => (
-            <li key={id}>
+            <li
+              key={id}
+              data-id={id}
+              className='hover:cursor-pointer hover:shadow-lg'
+            >
               <Product product={product} />
             </li>
           ))}
