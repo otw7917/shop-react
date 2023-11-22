@@ -35,6 +35,7 @@ function Home() {
       navigate("product/" + productId);
     }
   };
+
   return (
     <>
       <section className='relative w-full h-96 my-2'>
