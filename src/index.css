@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  @apply flex flex-col w-full items-center;
+}
+
+#root {
+  @apply w-full max-w-wide;
+}
+
 @layer base {
   h1 {
     @apply text-4xl font-bold;

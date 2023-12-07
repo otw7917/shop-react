@@ -1,18 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
-import { HiOutlineShoppingCart, HiStar } from "react-icons/hi2";
-import { useEffect, useState } from "react";
-import {
-  UserYouShouldKnow,
-  authStateChanged,
-  logout,
-} from "../services/firebase";
+import { HiOutlineShoppingCart, HiPencilSquare, HiStar } from "react-icons/hi2";
+
+import User from "./user";
+import { useAuthContext } from "../contexts/authContext";
 
 function Header() {
-  const [user, setUser] = useState<UserYouShouldKnow | null>();
-
-  useEffect(() => {
-    authStateChanged(setUser);
-  }, [user]);
+  const { user, logout } = useAuthContext();
 
   const navigate = useNavigate();
 
@@ -21,23 +14,45 @@ function Header() {
   };
 
   const handleLogout = () => {
-    logout().then(setUser);
+    logout();
   };
 
   return (
-    <div className='w-full flex justify-center'>
-      <div className='w-1/2 flex justify-between'>
-        <Link to='/'>
-          <HiStar className='h-full' />
-        </Link>
-        <Link to='/products'>상세페이지</Link>
-        <Link to='/cart'>
-          <HiOutlineShoppingCart className='h-full' />
-        </Link>
+    <div className='h-20 mx-5 md:mx-20 flex justify-between items-center gap-4 '>
+      <Link to='/'>
+        <HiStar className='h-full text-4xl' />
+      </Link>
+
+      <div className='flex items-center gap-8'>
+        {user && (
+          <Link to='/cart'>
+            <HiOutlineShoppingCart className='h-full text-4xl' />
+          </Link>
+        )}
+
+        {user && user.isAdmin && (
+          <Link to='/product/new'>
+            <HiPencilSquare className='h-full text-4xl' />
+          </Link>
+        )}
+
         {!user ? (
-          <button onClick={handleLoginPage}> 로그인 페이지</button>
+          <button
+            className='bg-primary px-4 py-2 rounded-md text-xl'
+            onClick={handleLoginPage}
+          >
+            로그인
+          </button>
         ) : (
-          <button onClick={handleLogout}> 로그아웃</button>
+          <div className='flex gap-4'>
+            <User user={user} />
+            <button
+              className='bg-primary px-4 py-2 rounded-md text-sm md:text-xl'
+              onClick={handleLogout}
+            >
+              로그아웃
+            </button>
+          </div>
         )}
       </div>
     </div>

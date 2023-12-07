@@ -5,4 +5,5 @@ interface ImportMetaEnv {
   readonly VITE_AUTH_DOMAIN: string;
   readonly VITE_PROJECT_ID: string;
   readonly VITE_APP_ID: string;
+  readonly VITE_DATABASE_URL: string;
 }

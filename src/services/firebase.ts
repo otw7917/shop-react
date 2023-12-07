@@ -8,19 +8,21 @@ import {
   getRedirectResult,
   onAuthStateChanged,
   signOut,
-  NextOrObserver,
   User,
 } from "firebase/auth";
+
+import { getDatabase, ref, get } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_API_KEY,
   authDomain: import.meta.env.VITE_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_PROJECT_ID,
   appId: import.meta.env.VITE_APP_ID,
+  databaseURL: import.meta.env.VITE_DATABASE_URL,
 };
 
 export const firebaseApp = initializeApp(firebaseConfig);
-
+const database = getDatabase(firebaseApp);
 export const auth = getAuth(firebaseApp);
 
 /**
@@ -56,21 +58,45 @@ export async function signInRedirect(auth: Auth, providerValue: string) {
 }
 
 export async function getUserResult() {
+  console.log("getUserResult");
   try {
     const result = await getRedirectResult(auth);
     const user = result?.user;
-    return Promise.resolve(user);
+    Promise.resolve(user);
   } catch (error) {
-    console.error(error);
+    console.error("getUserResult error", error);
   }
 }
 
+/**
+ * extends User and `User` extends `UserInfo`
+ */
 export interface UserYouShouldKnow extends User {
-  uid: string;
+  isAdmin?: boolean;
 }
 
-export async function authStateChanged(cb: NextOrObserver<User>) {
-  return onAuthStateChanged(auth, cb);
+export async function authStateChanged(
+  cb: (user: UserYouShouldKnow | null) => void
+) {
+  onAuthStateChanged(auth, async (user) => {
+    const updatedUser = user ? await checkAdmin(user) : null;
+    cb(updatedUser);
+  });
+}
+
+async function checkAdmin(user: UserYouShouldKnow) {
+  // admins
+  const userRef = ref(database, "admins");
+  // 한번만 실행할 경우 get
+  return get(userRef) //
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        const adminList: string[] = snapshot.val();
+        const isAdmin = adminList.includes(user.uid);
+        return { ...user, isAdmin };
+      }
+      return user;
+    });
 }
 
 export async function logout() {
