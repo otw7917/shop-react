@@ -11,7 +11,9 @@ import {
   User,
 } from "firebase/auth";
 
-import { getDatabase, ref, get } from "firebase/database";
+import { getDatabase, ref, get, set } from "firebase/database";
+
+import { v4 as uuidv4 } from "uuid";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_API_KEY,
@@ -105,4 +107,16 @@ export async function logout() {
     console.log("hello sign out successful");
     return null;
   });
+}
+
+interface Product {
+  name: string;
+  url: string;
+}
+
+export async function addProduct(newProduct: Product) {
+  const productId = uuidv4();
+
+  const productRef = ref(database, `products/${productId}`);
+  set(productRef, newProduct);
 }
