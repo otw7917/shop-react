@@ -1,14 +1,13 @@
 export interface Product {
   id: string;
-  category: Category;
-  options: Sizes;
+  category: string;
+  sizes: string[];
   name: string;
   description: string;
-  image: string;
-  price: string;
   url: string;
+  price: string;
 }
 
 type Category = "man" | "woman" | "baby";
 type Sizes = Size[];
-type Size = "S" | "M" | "L" | "XL" | "2XL";
+type Size = "xs" | "sm" | "md" | "lg" | "xl" | "2XL";
