@@ -5,6 +5,7 @@ export default {
     extend: {
       colors: {
         primary: "#03A9F4",
+        accent: "#0276aa",
       },
       maxWidth: {
         wide: "1800px",

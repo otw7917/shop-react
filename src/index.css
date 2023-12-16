@@ -10,6 +10,10 @@ body {
   @apply w-full max-w-wide;
 }
 
+input {
+  @apply border-2 rounded-md;
+}
+
 @layer base {
   h1 {
     @apply text-4xl font-bold;
