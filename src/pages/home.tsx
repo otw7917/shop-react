@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
 import Banner from "../components/banner";
-import Product from "../components/product";
-import { Product as ProductType } from "../types";
+import ProductThumbnail from "../components/productThumbnail";
 import { useNavigate } from "react-router-dom";
+import { getProducts } from "../services/firebase";
+import { useQuery } from "@tanstack/react-query";
 
 const IMAGE = {
   name: "banner",
@@ -12,22 +12,14 @@ const IMAGE = {
 };
 
 function Home() {
-  const [products, setProducts] = useState<{
-    [productId: string]: ProductType;
-  } | null>(null);
+  const { isLoading, data: products } = useQuery({
+    queryKey: ["products"],
+    queryFn: getProducts,
+  });
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetch("data/products.json", {
-      method: "GET",
-    })
-      .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .catch((err) => console.log(err));
-  }, []);
-
-  if (!products) return <>Loading</>;
+  if (isLoading) return <>Loading</>;
 
   const goProductDetailPage = (e: React.MouseEvent<HTMLUListElement>) => {
     const productId = (e.target as HTMLElement).closest("li")?.dataset.id;
@@ -43,16 +35,20 @@ function Home() {
       </section>
       <section className='flex flex-col gap-4 mx-2'>
         <h1>Prodcut page</h1>
-        <ul className='grid grid-cols-4 gap-6' onClick={goProductDetailPage}>
-          {Object.entries(products).map(([id, product]) => (
-            <li
-              key={id}
-              data-id={id}
-              className='hover:cursor-pointer hover:shadow-lg'
-            >
-              <Product product={product} />
-            </li>
-          ))}
+        <ul
+          className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'
+          onClick={goProductDetailPage}
+        >
+          {products &&
+            Object.entries(products).map(([id, product]) => (
+              <li
+                key={id}
+                data-id={id}
+                className='m-2 rounded-lg overflow-hidden hover:cursor-pointer hover:shadow-lg'
+              >
+                <ProductThumbnail product={product} />
+              </li>
+            ))}
         </ul>
       </section>
     </>

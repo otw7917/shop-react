@@ -117,3 +117,37 @@ export async function addProduct(newProduct: Product, url: string) {
   const product = { ...newProduct, id: productId, url };
   set(productRef, product);
 }
+
+interface ResponseProduct {
+  [s: string]: Product;
+}
+
+export async function getProducts(): Promise<ResponseProduct> {
+  const productRef = ref(database, `products`);
+  return get(productRef) //
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        return snapshot.val();
+      } else {
+        console.log("No data available");
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}
+
+export async function getProductDetail(productId: string): Promise<Product> {
+  const productRef = ref(database, `products/${productId}`);
+  return get(productRef)
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        return snapshot.val();
+      } else {
+        console.log("No data available");
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}

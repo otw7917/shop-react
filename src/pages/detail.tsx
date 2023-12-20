@@ -1,33 +1,31 @@
-import { Product as ProductType } from "../types";
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getProductDetail } from "../services/firebase";
 
 function Detail() {
   const params = useParams();
   const productId = params.id;
+  const {
+    isLoading,
+    data: product,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: [`products/${productId}`],
+    queryFn: () => getProductDetail(productId!),
+  });
 
-  const [product, setProduct] = useState<ProductType | null>(null);
-
-  useEffect(() => {
-    if (!productId) return;
-
-    fetch("/data/products.json", { method: "GET" })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        setProduct(data[productId]);
-      });
-  }, [productId]);
-
-  if (!product) return <>Loading</>;
-
-  const { image, name, price, description, options, category } = product;
+  if (isLoading) return <>Loading</>;
+  if (isError) {
+    return <>Error messages : {error.message}</>;
+  }
+  const { id, url, name, price, description, sizes, category } = product!;
 
   return (
-    <div>
+    <div key={id}>
       <div className='flex h-96 w-full px-4'>
         <div className='w-1/2 h-full flex-shrink-0'>
-          <img src={"/" + image} className='h-full m-auto'></img>
+          <img src={url} className='h-full m-auto'></img>
         </div>
         <div>
           <>
@@ -38,8 +36,8 @@ function Detail() {
           </>
           <fieldset>
             <select name='size_option' id='options'>
-              {options.map((option) => (
-                <option>{option}</option>
+              {sizes.map((size) => (
+                <option>{size}</option>
               ))}
             </select>
           </fieldset>
