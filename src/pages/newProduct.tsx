@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { uploadImage } from "../services/imageUploader";
 import { addProduct } from "../services/firebase";
 import { Product } from "../types";
@@ -11,15 +11,15 @@ const InputContainer = ({ children }: { children: React.ReactNode }) => {
 function NewProduct() {
   const [image, setImage] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
+  const imageRef = useRef<HTMLInputElement>(null);
   const [product, setProduct] = useState<Product>({
     id: "",
-    category: "",
+    category: "woman",
     sizes: [],
     name: "",
     description: "",
     url: "",
-    price: ",",
+    price: "",
   });
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -45,6 +45,17 @@ function NewProduct() {
       console.error(error);
     } finally {
       setIsLoading(false);
+      setProduct({
+        id: "",
+        category: "woman",
+        sizes: [],
+        name: "",
+        description: "",
+        url: "",
+        price: "",
+      });
+      setImage(null);
+      (imageRef.current as HTMLInputElement).value = "";
     }
   };
 
@@ -97,6 +108,7 @@ function NewProduct() {
           <InputContainer>
             <label htmlFor='image'>
               <input
+                ref={imageRef}
                 name='file'
                 type='file'
                 id='image'
@@ -108,7 +120,14 @@ function NewProduct() {
           <InputContainer>
             <label htmlFor='name'>
               제품명
-              <input type='text' id='name' name='name' className='w-full' />
+              <input
+                type='text'
+                id='name'
+                name='name'
+                className='w-full'
+                required
+                value={product.name}
+              />
             </label>
           </InputContainer>
           <InputContainer>
@@ -125,7 +144,7 @@ function NewProduct() {
               </select>
             </label>
           </InputContainer>
-          <ProductSize />
+          <ProductSize selectedSize={product.sizes} />
           <InputContainer>
             <label htmlFor='description' className='w-full'>
               설명
@@ -134,6 +153,7 @@ function NewProduct() {
                 name='description'
                 id='description'
                 className='w-full border-2 mt-1'
+                value={product.description}
               ></input>
             </label>
           </InputContainer>
@@ -145,6 +165,7 @@ function NewProduct() {
                 name='price'
                 id='price'
                 className='w-full'
+                value={product.price}
               ></input>
             </label>
           </InputContainer>
