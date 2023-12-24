@@ -5,7 +5,7 @@ function Layout() {
   return (
     <>
       <Header />
-      <main>
+      <main className='max-w-5xl mx-auto'>
         <Outlet />
       </main>
     </>
