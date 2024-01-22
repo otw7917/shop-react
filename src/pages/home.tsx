@@ -30,7 +30,7 @@ function Home() {
 
   return (
     <>
-      <section className='relative w-full h-96 my-2'>
+      <section className='w-full h-96 my-2'>
         <Banner IMAGE={IMAGE} objectFit='object-cover' />
       </section>
       <section className='flex flex-col gap-4 mx-2'>
