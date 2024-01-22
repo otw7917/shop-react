@@ -1,10 +1,13 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getProductDetail } from "../services/firebase";
+import { addCart, getProductDetail } from "../services/firebase";
+import { useAuthContext } from "../contexts/authContext";
+import { useState } from "react";
 
 function Detail() {
   const params = useParams();
   const productId = params.id;
+
   const {
     isLoading,
     data: product,
@@ -14,6 +17,36 @@ function Detail() {
     queryKey: [`products/${productId}`],
     queryFn: () => getProductDetail(productId!),
   });
+
+  const [selectedSize, setSelectedSize] = useState<string | undefined>("");
+  const [isCartLoading, setIsCartLoading] = useState<boolean>(false);
+  const handleSizeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const select = event.target.value;
+    setSelectedSize(select);
+  };
+
+  const { uid } = useAuthContext();
+
+  const handleCartAdd = async () => {
+    if (!uid) {
+      alert("user정보가 없습니다.");
+      return;
+    }
+    if (selectedSize === "") {
+      alert("사이즈 정보가 없습니다.");
+      return;
+    }
+
+    const selectedProduct = product && { ...product, selectedSize };
+    setIsCartLoading(true);
+    try {
+      await addCart(uid, selectedProduct!);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsCartLoading(false);
+    }
+  };
 
   if (isLoading) return <>Loading</>;
   if (isError) {
@@ -39,24 +72,65 @@ function Detail() {
         </div>
         <fieldset>
           사이즈
-          <select name='size_option' id='options' className='w-full p-1'>
+          <select
+            name='size_option'
+            id='options'
+            className='w-full p-1'
+            onChange={handleSizeChange}
+            value={selectedSize}
+          >
+            {selectedSize === "" && (
+              <option value='' disabled>
+                사이즈를 선택해주세요!!
+              </option>
+            )}
             {sizes.map((size) => (
-              <option>{size}</option>
+              <option key={size} value={size}>
+                {size}
+              </option>
             ))}
           </select>
         </fieldset>
         <div className='flex gap-2 px-10'>
-          <Button>장바구니 추가</Button>
-          <Button>바로 결제</Button>
+          <Button name={"addCart"} handleCartAdd={handleCartAdd}>
+            {isCartLoading ? "기다려주세요" : "장바구니 추가"}
+          </Button>
+          <Button name={"goCart"}>바로 결제</Button>
         </div>
       </div>
     </div>
   );
 }
 
-const Button = ({ children }: { children: React.ReactNode }) => {
+const Button = ({
+  name,
+  children,
+  handleCartAdd,
+}: {
+  children: React.ReactNode;
+  name: string;
+  handleCartAdd?: () => void;
+}) => {
+  const navigate = useNavigate();
+
+  const onClickCartButton = (e: React.MouseEvent) => {
+    const buttonName = (e.currentTarget as HTMLButtonElement).name;
+    switch (buttonName) {
+      case "goCart":
+        navigate("/cart");
+        break;
+      case "addCart":
+        handleCartAdd!();
+        break;
+    }
+  };
+
   return (
-    <button className='p-4 w-full bg-accent rounded-md text-slate-100 hover:brightness-125'>
+    <button
+      name={name}
+      className='p-4 w-full bg-accent rounded-md text-slate-100 hover:brightness-125'
+      onClick={onClickCartButton}
+    >
       {children}
     </button>
   );

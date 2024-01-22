@@ -14,7 +14,7 @@ import {
 import { getDatabase, ref, get, set } from "firebase/database";
 
 import { v4 as uuidv4 } from "uuid";
-import { Product } from "../types";
+import { CartProducts, Product } from "../types";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_API_KEY,
@@ -76,6 +76,7 @@ export async function getUserResult() {
  */
 export interface UserYouShouldKnow extends User {
   isAdmin?: boolean;
+  uid: string;
 }
 
 export async function authStateChanged(
@@ -150,4 +151,29 @@ export async function getProductDetail(productId: string): Promise<Product> {
     .catch((error) => {
       console.error(error);
     });
+}
+
+type CartUserId = string | null | undefined;
+
+export async function getCart(userId: CartUserId): Promise<CartProducts> {
+  const cartsRef = ref(database, `carts/${userId}`);
+  return get(cartsRef) //
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        const items = snapshot.val() || {};
+        return items;
+      }
+    })
+    .catch((error) => {
+      console.error("getCart error", error);
+    });
+}
+
+export async function addCart(
+  userId: string | undefined | null,
+  product: Product
+) {
+  const cartsRef = ref(database, `carts/${userId}/${product.id}`);
+  const newCartProduct = { ...product, quantity: 1 };
+  return set(cartsRef, newCartProduct);
 }

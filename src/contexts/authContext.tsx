@@ -8,11 +8,13 @@ import {
 
 interface AuthContextDefaultValue {
   user: UserYouShouldKnow | undefined | null;
+  uid: string | undefined | null;
   signInRedirect: typeof signInRedirect;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextDefaultValue>({
+  uid: null,
   user: null,
   signInRedirect: signInRedirect,
   logout,
@@ -32,7 +34,9 @@ export default function AuthContextProvider({
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user: user, signInRedirect, logout }}>
+    <AuthContext.Provider
+      value={{ user: user, uid: user && user.uid, signInRedirect, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

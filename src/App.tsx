@@ -8,6 +8,7 @@ import NewProduct from "./pages/newProduct";
 import AuthContextProvider from "./contexts/authContext";
 import ProtectedRoute from "./pages/protectedRoute";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 function App() {
   const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ function App() {
           </Route>
           <Route path='/login' element={<Login />}></Route>
         </Routes>
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </AuthContextProvider>
   );
