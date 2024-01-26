@@ -21,7 +21,7 @@ function CartProductSize({
     <div>
       <select value={selectedSize} id={id} onChange={handleChange}>
         {sizes.map((size) => (
-          <option>{size}</option>
+          <option key={size}>{size}</option>
         ))}
       </select>
     </div>

@@ -16,8 +16,6 @@ function CartTable({
   handleSelectedSize,
   handleDelete,
 }: CartTableProps) {
-  console.log("CartTable Rendering…");
-
   const { id, url, name, selectedSize, quantity, sizes, price } = product;
 
   const onDelete = (e: React.MouseEvent) => {

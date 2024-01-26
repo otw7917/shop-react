@@ -156,12 +156,17 @@ export async function getProductDetail(productId: string): Promise<Product> {
 type CartUserId = string | null | undefined;
 
 export async function getCart(userId: CartUserId): Promise<CartProducts> {
+  console.log("getCart ");
   const cartsRef = ref(database, `carts/${userId}`);
   return get(cartsRef) //
     .then((snapshot) => {
+      console.log("firebase, snapshot ", snapshot.exists());
       if (snapshot.exists()) {
-        const items = snapshot.val() || {};
+        const items = snapshot.val();
         return items;
+      } else {
+        console.log("장바구니가 비어있음");
+        return null;
       }
     })
     .catch((error) => {
@@ -176,4 +181,12 @@ export async function addCart(
   const cartsRef = ref(database, `carts/${userId}/${product.id}`);
   const newCartProduct = { ...product, quantity: 1 };
   return set(cartsRef, newCartProduct);
+}
+
+export async function updateCart(
+  userId: string | undefined | null,
+  cartProducts: CartProducts
+) {
+  const cartsRef = ref(database, `carts/${userId}`);
+  return set(cartsRef, cartProducts);
 }
