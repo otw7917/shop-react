@@ -7,6 +7,10 @@ type ObjectFit =
   | "object-none"
   | "object-scale-down";
 
+interface BannerProps {
+  IMAGE: BannerImage;
+  objectFit: ObjectFit;
+}
 interface BannerImage {
   name: string;
   filePath: string;
@@ -14,34 +18,47 @@ interface BannerImage {
   description: string;
 }
 
-interface BannerProps {
-  IMAGE: BannerImage;
-  objectFit: ObjectFit;
-}
-
 function Banner({ IMAGE, objectFit }: BannerProps) {
-  const { filePath, name, title, description } = IMAGE;
+  const { name, filePath, title, description } = IMAGE;
 
   return (
-    <div className='relative h-full'>
-      <img
-        src={filePath}
-        alt={name}
-        className={`h-full w-full ${objectFit} opacity-70`}
-      />
-      <BannerTitle>
-        <BannerTitle.Title>{title}</BannerTitle.Title>
-        <BannerTitle.Description>{description}</BannerTitle.Description>
-      </BannerTitle>
-    </div>
+    <BannerLayout>
+      <BannerImage filePath={filePath} name={name} objectFit={objectFit} />
+      <BannerInfo>
+        <BannerInfo.Title>{title}</BannerInfo.Title>
+        <BannerInfo.Description>{description}</BannerInfo.Description>
+      </BannerInfo>
+    </BannerLayout>
   );
 }
 
-interface BannerTitleProps {
+const BannerLayout = ({ children }: { children: ReactNode }) => {
+  return <div className='relative h-full'>{children}</div>;
+};
+
+const BannerImage = ({
+  filePath,
+  name,
+  objectFit,
+}: {
+  filePath: string;
+  name: string;
+  objectFit: string;
+}) => {
+  return (
+    <img
+      src={filePath}
+      alt={name}
+      className={`h-full w-full ${objectFit} opacity-70`}
+    />
+  );
+};
+
+interface BannerInfoProps {
   children?: ReactNode;
 }
 
-const BannerTitle = ({ children }: BannerTitleProps) => {
+const BannerInfo = ({ children }: BannerInfoProps) => {
   return (
     <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center'>
       {children}
@@ -49,7 +66,7 @@ const BannerTitle = ({ children }: BannerTitleProps) => {
   );
 };
 
-const Title = ({ children }: BannerTitleProps) => {
+const Title = ({ children }: BannerInfoProps) => {
   return (
     <div>
       <h1 className='text-4xl'>{children}</h1>
@@ -57,11 +74,11 @@ const Title = ({ children }: BannerTitleProps) => {
   );
 };
 
-const Description = ({ children }: BannerTitleProps) => {
+const Description = ({ children }: BannerInfoProps) => {
   return <span>{children}</span>;
 };
 
-BannerTitle.Title = Title;
-BannerTitle.Description = Description;
+BannerInfo.Title = Title;
+BannerInfo.Description = Description;
 
 export default Banner;
